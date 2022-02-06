@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.IO;
-
-using Microsoft.Win32;
 
 namespace ScrapModLoader
 {

@@ -163,7 +163,7 @@ namespace ScrapModLoader
             if (Windowed.IsChecked ?? false)
                 args = "-fullscreen:0";
 
-            String gamePath = modsLauncher.SelectedGameVersion == "1.0" ? 
+            String gamePath = modsLauncher.SelectedGameVersion == "1.0" ?
                 modsLauncher.ScraplandPath : modsLauncher.ScraplandRemasteredPath;
 
             Process.Start(gamePath + @"\bin\Scrap.exe", args);
