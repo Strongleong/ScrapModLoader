@@ -1,0 +1,87 @@
+﻿<Window x:Class="ScrapModLoader.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"        
+        xmlns:local="clr-namespace:ScrapModLoader"
+        mc:Ignorable="d"
+        Title="SettingsWindow" Height="386" Width="522">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />            
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="30" />
+        </Grid.RowDefinitions>
+        <TabControl Grid.Column="1" Margin="0,10,0,0">
+            <TabItem Header="Mods">
+                <TabControl Margin="0,5,0,0" >
+                    <TabItem Header="Mods Folders">
+                        <Grid Background="#FFE5E5E5" Margin="0,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="4*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <ListBox Name="ModsPathesList" SelectionChanged="ModsPathesList_SelectionChanged" SelectionMode="Single" PreviewMouseLeftButtonDown="ModsPathesList_PreviewMouseLeftButtonDown">
+                            </ListBox>
+                            <StackPanel Grid.Column="2"  Margin="10,10,10,10">
+                                <Button Content="Add"    Margin="0,0,0,10" Name="ButtonAdd"    Click="ButtonAdd_Click" />
+                                <Button Content="Remove" Margin="0,0,0,10" Name="ButtonRemove" Click="ButtonRemove_Click" IsEnabled="False" />
+                                <Button Content="Up"     Margin="0,0,0,10" Name="ButtonUp"     Click="ButtonUp_Click"     IsEnabled="False" />
+                                <Button Content="Down"   Margin="0,0,0,10" Name="ButtonDown"   Click="ButtonDown_Click"   IsEnabled="False" />
+                                <Button Content="Open"   Margin="0,0,0,10" Name="ButtonOpen"   Click="ButtonOpen_Click"   IsEnabled="False" />
+                            </StackPanel>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </TabItem>
+            <TabItem Header="Game" Height="20" VerticalAlignment="Top">
+                <Grid Margin="0,5,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <GroupBox Grid.Row="0" Grid.Column="0" Header="Scrapland instalation path">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30" />
+                                <RowDefinition Height="30" />
+                                <RowDefinition Height="30" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            
+                            <Label Grid.Row="0" Content="Original:" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                            <TextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" x:Name="ScraplandPathTextBox" IsEnabled="False" />
+                            <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal">
+                                <Button Content=" Browse... " HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0,5,0" Name="ButtonBrowseScrap" Click="ButtonBrowseScrap_Click"/>
+                                <Button Content=" Clear " HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0,5,0" Name="ButtonClearScrap" Click="ButtonClearScrap_Click"/>
+                                <Button Content=" Show In Explorer " HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0,5,0" Name="ButtonShowScrap" IsEnabled="False" Click="ButtonShowScrap_Click" />
+                            </StackPanel>
+                    
+                            <Label Grid.Row="1" Content="Remastered:" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                            <TextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" x:Name="ScraplandRemasteredPathTextBox" IsEnabled="False" />
+                            <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal">
+                                <Button Content=" Browse... " HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0,5,0" Name="ButtonBrowseScrapRemaster" Click="ButtonBrowseScrapRemaster_Click"/>
+                                <Button Content=" Clear " HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0,5,0" Name="ButtonClearScrapRemaster" Click="ButtonClearScrapRemaster_Click"/>
+                                <Button Content=" Show In Explorer " HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0,5,0" Name="ButtonShowScrapRemaster" IsEnabled="False" Click="ButtonShowScrapRemaster_Click" />
+                            </StackPanel>
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5,5,5,5">
+            <Button Content="Save"   Margin="10,0,0,0" Width="50" Name="ButtonSave"   Click="ButtonSave_Click" />
+            <Button Content="Cancel" Margin="10,0,0,0" Width="50" Name="ButtonCancel" Click="ButtonCancel_Click" />
+        </StackPanel>
+    </Grid>
+</Window>
