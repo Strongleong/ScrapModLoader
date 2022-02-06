@@ -64,12 +64,14 @@ namespace ScrapModLoader
                     if (displayName == "Scrapland")
                     {
                         ScraplandPath = subkey.GetValue("InstallLocation")?.ToString() ?? "";
+                        Settings.Default.ScraplandPath = ScraplandPath;
                         isFound = true;
                     }
 
                     if (displayName == "Scrapland Remastered")
                     {
                         ScraplandRemasteredPath = subkey.GetValue("InstallLocation")?.ToString() ?? "";
+                        Settings.Default.ScraplandRemasteredPath = ScraplandRemasteredPath;
                         isFound = true;
                     }
                 }
