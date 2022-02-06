@@ -38,6 +38,23 @@ namespace ScrapModLoader
             LoadFromFile(path);
         }
 
+        public void LoadModToGame(String gamePath)
+        {
+            gamePath += @"Mods\" + Name;
+            Directory.CreateDirectory(gamePath);
+
+            using (ZipFile zipFile = ZipFile.Read(ModPath))
+            {
+                foreach (ZipEntry zipEntry in zipFile)
+                {
+                    if (Path.GetExtension(zipEntry.FileName) == ".packed")
+                    {
+                        zipEntry.Extract(gamePath);
+                    }
+                }
+            }
+        }
+
         private void LoadFromFile(String path)
         {
             using (ZipFile zipFile = ZipFile.Read(path))

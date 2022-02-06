@@ -157,14 +157,17 @@ namespace ScrapModLoader
 
         private void ButtonRunScrapland_Click(Object sender, RoutedEventArgs e)
         {
-            String executablePath = ScraplandVersion.SelectedIndex == 0 
+
+            String gamePath = ScraplandVersion.SelectedIndex == 0 
                 ? modsLauncher.ScraplandPath : modsLauncher.ScraplandRemasteredPath;
+
+            modsLauncher.LoadMods(gamePath);
 
             String args = "-fullscreen:1";
             if (Windowed.IsChecked ?? false)
                 args = "-fullscreen:0";
 
-            Process.Start(executablePath + @"\bin\Scrap.exe", args);
+            Process.Start(gamePath + @"\bin\Scrap.exe", args);
 
             if (CloseLauncher.IsChecked ?? false)
                 Close();
