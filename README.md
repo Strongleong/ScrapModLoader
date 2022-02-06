@@ -64,4 +64,5 @@ For now mod for Scrapland is a *.sm file that basically is a zip arhive with fol
  - [ ] Recompiling *.py to *.pyc
  - [ ] Mod settings.
  - [ ] More meta info in `config.xml`
+ - [ ] Multilanguage support
  - [ ] More mods :wink:
