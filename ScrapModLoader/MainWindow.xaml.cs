@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -152,6 +153,21 @@ namespace ScrapModLoader
             if (settingsWindow.Save)
                 modsLauncher.ScanMods();
             ModsList.Items.Refresh();
+        }
+
+        private void ButtonRunScrapland_Click(Object sender, RoutedEventArgs e)
+        {
+            String executablePath = ScraplandVersion.SelectedIndex == 0 
+                ? modsLauncher.ScraplandPath : modsLauncher.ScraplandRemasteredPath;
+
+            String args = "-fullscreen:1";
+            if (Windowed.IsChecked ?? false)
+                args = "-fullscreen:0";
+
+            Process.Start(executablePath + @"\bin\Scrap.exe", args);
+
+            if (CloseLauncher.IsChecked ?? false)
+                Close();
         }
     }
 }

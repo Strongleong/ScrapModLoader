@@ -73,9 +73,9 @@
                     <ComboBoxItem Content="Original" IsEnabled="False" />
                     <ComboBoxItem Content="Remastered" />
                 </ComboBox>
-                <CheckBox Content=" Windowed " Margin="0,0,10,0" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                <CheckBox Content=" Close launcher " Margin="0,0,10,0" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                <Button Content=" Run Scrapland " Name="ButtonRunScrapland" />
+                <CheckBox Name="Windowed" Content=" Windowed " Margin="0,0,10,0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <CheckBox Name="CloseLauncher" Content=" Close launcher " Margin="0,0,10,0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <Button Content=" Run Scrapland " Name="ButtonRunScrapland" Click="ButtonRunScrapland_Click" />
             </StackPanel>
         </Grid>
     </Grid>
