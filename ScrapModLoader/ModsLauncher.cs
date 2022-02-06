@@ -11,12 +11,14 @@ namespace ScrapModLoader
         public List<ScrapMod> Mods { get; private set; }
         public String ScraplandPath { get; set; }
         public String ScraplandRemasteredPath { get; set; }
+        public String SelectedGameVersion { get; set; }
 
         public ModsLauncher()
         {
             Mods = new List<ScrapMod>();
             ScraplandPath = Settings.Default.ScraplandPath;
             ScraplandRemasteredPath = Settings.Default.ScraplandRemasteredPath;
+            SelectedGameVersion = "0.0";
         }
 
         public void ScanMods()
@@ -76,10 +78,15 @@ namespace ScrapModLoader
             return isFound;
         }
 
-        public void LoadMods(String gamePath)
+        public void LoadMods()
         {
+            String gamePath = SelectedGameVersion == "1.0" ? ScraplandPath : ScraplandRemasteredPath;
+
             foreach (ScrapMod mod in Mods)
             {
+                if (mod.RequiredGame != SelectedGameVersion)
+                    continue;
+
                 if (mod.Checked)
                 {
                     if (!mod.IsEnabled(gamePath))

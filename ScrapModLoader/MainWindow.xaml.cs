@@ -157,20 +157,22 @@ namespace ScrapModLoader
 
         private void ButtonRunScrapland_Click(Object sender, RoutedEventArgs e)
         {
-
-            String gamePath = ScraplandVersion.SelectedIndex == 0 
-                ? modsLauncher.ScraplandPath : modsLauncher.ScraplandRemasteredPath;
-
-            modsLauncher.LoadMods(gamePath);
+            modsLauncher.LoadMods();
 
             String args = "-fullscreen:1";
             if (Windowed.IsChecked ?? false)
                 args = "-fullscreen:0";
+
+            String gamePath = modsLauncher.SelectedGameVersion == "1.0" ? 
+                modsLauncher.ScraplandPath : modsLauncher.ScraplandRemasteredPath;
 
             Process.Start(gamePath + @"\bin\Scrap.exe", args);
 
             if (CloseLauncher.IsChecked ?? false)
                 Close();
         }
+
+        private void ScraplandVersion_SelectionChanged(Object sender, SelectionChangedEventArgs e) =>
+            modsLauncher.SelectedGameVersion = ScraplandVersion.SelectedIndex == 0 ? "1.0" : "1.1";
     }
 }
