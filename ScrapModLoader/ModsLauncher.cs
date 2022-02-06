@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 
-using Ionic.Zip;
-
 using Microsoft.Win32;
 
 namespace ScrapModLoader
@@ -78,10 +76,21 @@ namespace ScrapModLoader
             return isFound;
         }
 
-        internal void LoadMods(String gamePath)
+        public void LoadMods(String gamePath)
         {
-            foreach (ScrapMod mod in Mods.FindAll(mod => mod.Checked))
-                mod.LoadModToGame(gamePath);
+            foreach (ScrapMod mod in Mods)
+            {
+                if (mod.Checked)
+                {
+                    if (!mod.IsEnabled(gamePath))
+                        mod.Enable(gamePath);
+                }
+                else
+                {
+                    if (mod.IsEnabled(gamePath))
+                        mod.Disable(gamePath);
+                }
+            }
         }
     }
 }

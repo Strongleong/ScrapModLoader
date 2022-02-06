@@ -38,7 +38,52 @@ namespace ScrapModLoader
             LoadFromFile(path);
         }
 
-        public void LoadModToGame(String gamePath)
+
+        public Boolean IsLoaded(String gamePath) => Directory.Exists(gamePath + @"Mods\" + Name);
+
+        public Boolean IsEnabled(String gamePath)
+        {
+            if (IsLoaded(gamePath))
+            {
+                foreach (String file in Directory.EnumerateFiles(gamePath + @"Mods\" + Name))
+                {
+                    if (Path.GetExtension(file) == ".disabled")
+                        return false;
+                }
+
+                return true;
+            }
+            return false;
+        }
+
+        public void Enable(String gamePath)
+        {
+            if (!IsLoaded(gamePath))
+                LoadModToGame(gamePath);
+
+            if (IsEnabled(gamePath))
+                return;
+
+            foreach (String file in Directory.EnumerateFiles(gamePath + @"Mods\" + Name))
+            {
+                if (Path.GetExtension(file) == ".disabled")
+                    File.Move(file, Path.ChangeExtension(file, null));
+            }
+        }
+
+        public void Disable(String gamePath)
+        {
+            if (!IsEnabled(gamePath))
+                return;
+
+            foreach (String file in Directory.EnumerateFiles(gamePath + @"Mods\" + Name))
+            {
+                if (Path.GetExtension(file) == ".packed")
+                    File.Move(file, file + ".disabled");
+            }
+        }
+
+        private void LoadModToGame(String gamePath)
         {
             gamePath += @"Mods\" + Name;
             Directory.CreateDirectory(gamePath);
