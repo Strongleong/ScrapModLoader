@@ -66,9 +66,13 @@
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">                
-                <Button Content=" Settings " Click="Button_Click" />
+                <Button Name="ButtonSettings" Content=" Settings " Click="ButtonSettings_Click" />
             </StackPanel>
             <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left">
+                <ComboBox Name="ScraplandVersion" Margin="0,0,10,0">
+                    <ComboBoxItem Content="Original" IsEnabled="False" />
+                    <ComboBoxItem Content="Remastered" />
+                </ComboBox>
                 <CheckBox Content=" Windowed " Margin="0,0,10,0" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 <CheckBox Content=" Close launcher " Margin="0,0,10,0" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 <Button Content=" Run Scrapland " Name="ButtonRunScrapland" />

@@ -9,18 +9,6 @@ namespace ScrapModLoader
 {
     internal static class Utils
     {
-        public static String GetFilePath()
-        {
-            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog
-            {
-                DefaultExt = ".exe",
-                Filter = "Scrapland Executable File (*.exe)|*.exe"
-            };
-
-            Nullable<Boolean> result = dlg.ShowDialog();
-            return dlg.FileName;
-        }
-        
         public static String GetFolderDialog()
         {
             using System.Windows.Forms.FolderBrowserDialog? dialog = new System.Windows.Forms.FolderBrowserDialog();

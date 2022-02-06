@@ -17,7 +17,7 @@ namespace ScrapModLoader
         public String ScraplandRemasteredPath { get; set; }
         public Boolean Save { get; set; }
 
-        public SettingsWindow(ModsLauncher modsLauncher)
+        public SettingsWindow()
         {
             InitializeComponent();
 
@@ -118,7 +118,7 @@ namespace ScrapModLoader
         }
         private void ButtonBrowseScrapRemaster_Click(Object sender, RoutedEventArgs e)
         {
-            String scraplandRemasteredPath = Utils.GetFilePath();
+            String scraplandRemasteredPath = Utils.GetFolderDialog();
             if (scraplandRemasteredPath != String.Empty)
             {
                 ScraplandRemasteredPathTextBox.Text = scraplandRemasteredPath;

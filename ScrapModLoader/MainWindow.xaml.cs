@@ -34,11 +34,20 @@ namespace ScrapModLoader
             }
 
             // TODO: Refactor it to separate window with pretty loading animation
-            if (!modsLauncher.SearchForScrapland())
+            if (modsLauncher.ScraplandPath == String.Empty && modsLauncher.ScraplandRemasteredPath == String.Empty)
             {
-                ButtonRunScrapland.IsEnabled = false;
-                MessageBox.Show("Error: unable to find Scrapland instalation. Please, specify yours game installation folder in settings.");
+                Boolean isFoundScrapland = modsLauncher.SearchForScrapland();
+                if (!isFoundScrapland)
+                {
+                    ButtonRunScrapland.IsEnabled = false;
+                    MessageBox.Show("Error: unable to find Scrapland instalation. Please, specify yours game installation folder in settings.");
+                }
             }
+
+            ((ComboBoxItem)ScraplandVersion.Items[0]).IsEnabled = modsLauncher.ScraplandPath != String.Empty;
+            ((ComboBoxItem)ScraplandVersion.Items[1]).IsEnabled = modsLauncher.ScraplandRemasteredPath != String.Empty;
+
+            ScraplandVersion.SelectedIndex = modsLauncher.ScraplandRemasteredPath != String.Empty ? 1 : 0;
 
             modsLauncher.ScanMods();
         }
@@ -136,9 +145,9 @@ namespace ScrapModLoader
             mod.Checked = (Boolean)isChecked;
         }
 
-        private void Button_Click(Object sender, RoutedEventArgs e)
+        private void ButtonSettings_Click(Object sender, RoutedEventArgs e)
         {
-            SettingsWindow settingsWindow = new SettingsWindow(modsLauncher);
+            SettingsWindow settingsWindow = new SettingsWindow();
             settingsWindow.ShowDialog();
             if (settingsWindow.Save)
                 modsLauncher.ScanMods();
