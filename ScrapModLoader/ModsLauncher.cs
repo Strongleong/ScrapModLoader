@@ -12,6 +12,7 @@ namespace ScrapModLoader
         public String ScraplandPath { get; set; }
         public String ScraplandRemasteredPath { get; set; }
         public String SelectedGameVersion { get; set; }
+        public String LauncherVersion { get; set; }
 
         public ModsLauncher()
         {
@@ -19,6 +20,7 @@ namespace ScrapModLoader
             ScraplandPath = Settings.Default.ScraplandPath;
             ScraplandRemasteredPath = Settings.Default.ScraplandRemasteredPath;
             SelectedGameVersion = "0.0";
+            LauncherVersion = "0.3";
         }
 
         public void ScanMods()
@@ -87,7 +89,8 @@ namespace ScrapModLoader
             foreach (ScrapMod mod in Mods)
             {
                 // TODO: Warning about not loading mods that not supports selected version
-                if (!mod.SupportedGameVersions.Contains(SelectedGameVersion))
+                if (!mod.SupportedGameVersions.Contains(SelectedGameVersion) ||
+                    Single.Parse(mod.RequiredLauncher) < Single.Parse(LauncherVersion))
                     continue;
 
                 if (mod.Checked)
