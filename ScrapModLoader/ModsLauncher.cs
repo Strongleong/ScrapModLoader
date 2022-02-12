@@ -86,19 +86,16 @@ namespace ScrapModLoader
 
             foreach (ScrapMod mod in Mods)
             {
-                if (mod.RequiredGame != SelectedGameVersion)
+                // TODO: Warning about not loading mods that not supports selected version
+                if (!mod.SupportedGameVersions.Contains(SelectedGameVersion))
                     continue;
 
                 if (mod.Checked)
-                {
                     if (!mod.IsEnabled(gamePath))
-                        mod.Enable(gamePath);
-                }
+                        mod.Enable(gamePath, SelectedGameVersion);
                 else
-                {
                     if (mod.IsEnabled(gamePath))
                         mod.Disable(gamePath);
-                }
             }
         }
     }

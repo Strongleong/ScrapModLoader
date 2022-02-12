@@ -34,8 +34,9 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
+                                <GridViewColumn Header="Category" DisplayMemberBinding="{Binding Category}" />
                                 <GridViewColumn Header="Mod Version" DisplayMemberBinding="{Binding Version}" />
-                                <GridViewColumn Header="Game Version" DisplayMemberBinding="{Binding RequiredGame}" />
+                                <GridViewColumn Header="Game Version" DisplayMemberBinding="{Binding SupportedGameVersionsDisplay}" />
                             </GridView>
                         </ListView.View>
                         <ListView.ItemContainerStyle>

@@ -20,7 +20,16 @@ namespace ScrapModLoader
         public String Category { get; private set; }
         public String Version { get; private set; }
         public String RequiredLauncher { get; private set; }
-        public String RequiredGame { get; private set; }
+        public List<String> SupportedGameVersions { get; private set; }
+        public String SupportedGameVersionsDisplay { 
+            get
+            {
+                String result = String.Empty;
+                foreach (String version in SupportedGameVersions)
+                    result += version + ", ";
+                return result.TrimEnd(',', ' ');
+            } 
+        }
         public List<String> Authors { get; private set; }
         public Dictionary<String, List<String>> Credits { get; private set; }
 
@@ -34,7 +43,7 @@ namespace ScrapModLoader
             Category = String.Empty;
             Version = String.Empty;
             RequiredLauncher = String.Empty;
-            RequiredGame = String.Empty;
+            SupportedGameVersions = new List<String>();
             Authors = new List<String>();
             Credits = new Dictionary<String, List<String>>();
             LoadFromFile(path);
@@ -58,19 +67,17 @@ namespace ScrapModLoader
             return false;
         }
 
-        public void Enable(String gamePath)
+        public void Enable(String gamePath, String gameVersion)
         {
             if (!IsLoaded(gamePath))
-                LoadModToGame(gamePath);
+                LoadModToGame(gamePath, gameVersion);
 
             if (IsEnabled(gamePath))
                 return;
 
             foreach (String file in Directory.EnumerateFiles(gamePath + @"Mods\" + Name))
-            {
                 if (Path.GetExtension(file) == ".disabled")
                     File.Move(file, Path.ChangeExtension(file, null));
-            }
         }
 
         public void Disable(String gamePath)
@@ -79,13 +86,11 @@ namespace ScrapModLoader
                 return;
 
             foreach (String file in Directory.EnumerateFiles(gamePath + @"Mods\" + Name))
-            {
                 if (Path.GetExtension(file) == ".packed")
                     File.Move(file, file + ".disabled");
-            }
         }
 
-        private void LoadModToGame(String gamePath)
+        private void LoadModToGame(String gamePath, String gameVersion)
         {
             gamePath += @"Mods\" + Name;
             Directory.CreateDirectory(gamePath);
@@ -94,10 +99,11 @@ namespace ScrapModLoader
             {
                 foreach (ZipEntry zipEntry in zipFile)
                 {
+                    if (!Path.GetFullPath(zipEntry.FileName).Contains(gameVersion))
+                        continue;
+
                     if (Path.GetExtension(zipEntry.FileName) == ".packed")
-                    {
                         zipEntry.Extract(gamePath);
-                    }
                 }
             }
         }
@@ -151,7 +157,9 @@ namespace ScrapModLoader
                 Category = config["category"];
                 Version = config["version"];
                 RequiredLauncher = config["requiredLauncher"];
-                RequiredGame = config["requiredGame"];
+
+                foreach (TomlNode version in config["supportedGameVersions"])
+                    SupportedGameVersions.Add(version);
 
                 foreach (TomlNode author in config["authors"])
                     Authors.Add(author["name"]);
@@ -185,8 +193,8 @@ namespace ScrapModLoader
             if (!config.HasKey("requiredLauncher"))
                 throw new FileFormatException("No 'name' key in 'config.toml'");
 
-            if (!config.HasKey("requiredGame"))
-                throw new FileFormatException("No 'requiredGame' key in 'config.toml'");
+            if (!config.HasKey("supportedGameVersions"))
+                throw new FileFormatException("No 'supportedGameVersions' key in 'config.toml'");
         }
     }
 }

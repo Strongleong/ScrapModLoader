@@ -1,4 +1,4 @@
-WIP ScrapModLoader
+﻿WIP ScrapModLoader
 ==============
 
 This applications is for managing mods for Scrapland.
@@ -24,11 +24,29 @@ ScrapModLoader supports both original and remastered versions of Scrapland.
 
 For now mod for Scrapland is a *.sm file that basically is a zip arhive with following content:
 
-| Filename			 | Description									|
-|--------------------|----------------------------------------------|
-| icon.png			 | Icon for mod that will show up in mod loader	|
-| config.toml		 | Information about mod						|
-| <filename\>.packed | Container with all mod game assets			|
+| Filename				 | Description										|
+|------------------------|--------------------------------------------------|
+| icon.png				 | Icon for mod that will show up in mod loader		|
+| config.toml			 | Information about mod							|
+| <game_version\>\		 | Folder that named as game version  mod made for	|
+| <filename\>.packed	 | Container with all mod game assets				|
+
+You can have as many .packed files as you want. Mod loader will load everything.
+
+.packed files in the root of mod will be copied to the `Mods` folder of Scrapland. 
+
+.pakced files under game version folder will load only to the appopriate game version.  
+
+### .sm structure sample
+```
+│  icon.png
+│  config.toml
+│  mod_assets.packed
+├──1.0/
+│    only_for_original.packed
+└──1.1/
+     only_for_remastered.packed
+```
 
 ### config.toml sample
 ```toml
@@ -37,7 +55,7 @@ description = "Mod description"
 category = "Mod category"
 version = "1.0"
 requiredLauncher = "1.0"
-requiredGame = "1.0"
+supportedGameVersions = ["1.0", "1.1"]
 
 authors = [ 
 	{ name = "Author 1" },
@@ -64,9 +82,10 @@ credits = [
 
  - [X] Support for custom *.packed
  - [X] Supoprt for Scrapland Remastered
+ - [ ] Support for both Scrapland versions in single .sm file
  - [ ] Support for custom game files (i.e. `\Traslation\` files or custom `QuickConsole.py`)
  - [ ] Recompiling *.py to *.pyc
  - [ ] Mod settings.
- - [ ] More meta info in `config.xml`
+ - [ ] More meta info in `config.toml`
  - [ ] Multilanguage support
  - [ ] More mods :wink:
