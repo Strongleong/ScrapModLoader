@@ -6,6 +6,8 @@ using System.Xml;
 
 using Ionic.Zip;
 
+using Tommy;
+
 namespace ScrapModLoader
 {
     public class ScrapMod
@@ -25,7 +27,7 @@ namespace ScrapModLoader
         public ScrapMod(String path)
         {
             ModPath = path;
-            Name = Path.GetFileNameWithoutExtension(path);
+            Name = String.Empty;
             Description = String.Empty;
             Icon = new BitmapImage();
             Checked = false;
@@ -105,7 +107,7 @@ namespace ScrapModLoader
             using (ZipFile zipFile = ZipFile.Read(path))
             {
                 Byte[] iconBuffer = ExtractFromZip(zipFile, "icon.png");
-                Byte[] confBuffer = ExtractFromZip(zipFile, "config.xml");
+                Byte[] confBuffer = ExtractFromZip(zipFile, "config.toml");
                 LoadIcon(iconBuffer);
                 LoadConfig(confBuffer);
             }
@@ -115,7 +117,7 @@ namespace ScrapModLoader
         {
             ZipEntry? entry = zip[entry_path];
             if (entry == null)
-                throw new FileFormatException($"No '{entry}' in {Name} found");
+                throw new FileFormatException($"No '{entry_path}' in {Name} found");
 
             Byte[] buffer = new Byte[entry.UncompressedSize];
             using (MemoryStream zipStream = new MemoryStream(buffer))
@@ -138,63 +140,53 @@ namespace ScrapModLoader
         private void LoadConfig(Byte[] buffer)
         {
             using (MemoryStream sourceStream = new MemoryStream(buffer))
+            using (StreamReader reader = new StreamReader(sourceStream))
             {
-                XmlDocument xmlDocument = new XmlDocument();
-                xmlDocument.Load(sourceStream);
-                ParseModInfoFromXml(xmlDocument);
-                ParseAuthorsFromXml(xmlDocument);
-                ParseCreditsFromXml(xmlDocument);
-            }
-        }
+                TomlTable config = TOML.Parse(reader);
 
-        private void ParseModInfoFromXml(XmlDocument xmlDocument)
-        {
-            Description = xmlDocument.GetElementsByTagName("Description").Item(0)?.InnerText ??
-                                    throw new FileFormatException("No 'Description' tag in 'config.xml'");
-            Category = xmlDocument.GetElementsByTagName("Category").Item(0)?.InnerText ??
-                                    throw new FileFormatException("No 'Category' tag in 'config.xml'");
-            Version = xmlDocument.GetElementsByTagName("Version").Item(0)?.InnerText ??
-                                    throw new FileFormatException("No 'Version' tag in 'config.xml'");
-            RequiredLauncher = xmlDocument.GetElementsByTagName("RequiredLauncher").Item(0)?.InnerText ??
-                                    throw new FileFormatException("No 'RequiredLauncher' tag in 'config.xml'");
-            RequiredGame = xmlDocument.GetElementsByTagName("RequiredGame").Item(0)?.InnerText ??
-                                    throw new FileFormatException("No 'RequiredGame' tag in 'config.xml'");
-        }
+                CheckConfig(config);
 
-        private void ParseAuthorsFromXml(XmlDocument xmlDocument)
-        {
-            XmlNodeList authors = xmlDocument.GetElementsByTagName("Author");
-            foreach (XmlNode author in authors)
-            {
-                XmlAttribute? nameAttr = author.Attributes?["name"];
-                if (nameAttr == null)
-                    throw new FileFormatException("No 'name' attribute in 'Author' tag in 'config.xml'");
-                Authors.Add(nameAttr.InnerText);
-            }
-        }
+                Name = config["title"];
+                Description = config["description"];
+                Category = config["category"];
+                Version = config["version"];
+                RequiredLauncher = config["requiredLauncher"];
+                RequiredGame = config["requiredGame"];
 
-        private void ParseCreditsFromXml(XmlDocument xmlDocument)
-        {
-            XmlNodeList credits = xmlDocument.GetElementsByTagName("Credits");
-            foreach (XmlNode credit in credits)
-            {
-                List<String> entries = new List<String>();
+                foreach (TomlNode author in config["authors"])
+                    Authors.Add(author["name"]);
 
-                XmlAttribute? groupAttr = credit.Attributes?["group"];
-                if (groupAttr == null)
-                    throw new FileFormatException("No 'group' attribute in 'Credits' tag in 'config.xml'");
-
-                foreach (XmlNode entry in credit)
+                foreach (TomlNode credit in config["credits"])
                 {
-                    XmlAttribute? nameAttr = entry.Attributes?["name"];
-                    if (nameAttr == null)
-                        throw new FileFormatException("No 'name' attribute in 'Author' tag in 'config.xml'");
+                    List<String> entries = new List<String>();
 
-                    entries.Add(nameAttr.InnerText);
+                    foreach (TomlNode entry in credit["credits"])
+                        entries.Add(entry["name"]);
+
+                    Credits.Add(credit["group"], entries);
                 }
-
-                Credits.Add(groupAttr.InnerText, entries);
             }
+        }
+
+        private static void CheckConfig(TomlTable config)
+        {
+            if (!config.HasKey("title"))
+                throw new FileFormatException("No 'title' key in 'config.toml'");
+
+            if (!config.HasKey("description"))
+                throw new FileFormatException("No 'description' key in 'config.toml'");
+
+            if (!config.HasKey("category"))
+                throw new FileFormatException("No 'category' key in 'config.toml'");
+
+            if (!config.HasKey("version"))
+                throw new FileFormatException("No 'version' key in 'config.toml'");
+
+            if (!config.HasKey("requiredLauncher"))
+                throw new FileFormatException("No 'name' key in 'config.toml'");
+
+            if (!config.HasKey("requiredGame"))
+                throw new FileFormatException("No 'requiredGame' key in 'config.toml'");
         }
     }
 }

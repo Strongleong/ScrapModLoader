@@ -27,33 +27,37 @@ For now mod for Scrapland is a *.sm file that basically is a zip arhive with fol
 | Filename			 | Description									|
 |--------------------|----------------------------------------------|
 | icon.png			 | Icon for mod that will show up in mod loader	|
-| config.xml		 | Information about mod						|
+| config.toml		 | Information about mod						|
 | <filename\>.packed | Container with all mod game assets			|
 
-### meta.ini sample
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<ScrapMod>
-	<Title>Mod Title</Title>
-	<Description>Mod Desciption</Description>
+### config.toml sample
+```toml
+title = "Mod title"
+description = "Mod description"
+category = "Mod category"
+version = "1.0"
+requiredLauncher = "1.0"
+requiredGame = "1.0"
 
-	<Category>Category</Category>
-	<Version>1.0</Version>
-	<RequiredLauncher>1.0</RequiredLauncher>
-	<RequiredGame>1.1</RequiredGame>
-	
-	<Author name="Author1" website="https://example.com" />
-	<Author name="Author2" />
-	
-	<Credits group="Mod author">
-		<Credit name="Author1" />
-	</Credits>
-	<Credits group="Some credit" >
-		<Credit name="Credit1" />
-		<Credit name="Credit2" />
-		<Credit name="Credit3" />
-	</Credits>
-</ScrapMod>
+authors = [ 
+	{ name = "Author 1" },
+	{ name = "Author 2" }
+]
+
+[[credits]]
+group = "Group 1"
+credits = [
+	{ name = "Author 1" },
+	{ name = "Author 2" },
+	{ name = "Author 3" }
+]
+
+[[credits]]
+group = "Group 2"
+credits = [
+	{ name = "Author 3" },
+	{ name = "Author 4" }
+]
 ```
 
 ## TODO:
