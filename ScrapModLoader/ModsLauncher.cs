@@ -97,8 +97,8 @@ namespace ScrapModLoader
                     if (!mod.IsEnabled(gamePath))
                         mod.Enable(gamePath, SelectedGameVersion);
                     else
-                    if (mod.IsEnabled(gamePath))
-                        mod.Disable(gamePath);
+                        if (mod.IsEnabled(gamePath))
+                            mod.Disable(gamePath);
             }
         }
     }

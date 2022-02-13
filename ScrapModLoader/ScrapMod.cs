@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Media.Imaging;
-using System.Xml;
 
 using Ionic.Zip;
 
@@ -87,7 +86,7 @@ namespace ScrapModLoader
             gamePath += @"Mods\" + Name;
             Directory.CreateDirectory(gamePath);
 
-            using (var zipFile = ZipFile.Read(ModPath))
+            using (ZipFile zipFile = ZipFile.Read(ModPath))
             {
                 foreach (ZipEntry zipEntry in zipFile)
                 {
@@ -102,28 +101,28 @@ namespace ScrapModLoader
 
         public static ScrapMod LoadFromFile(String path)
         {
-            using var zipFile = ZipFile.Read(path);
+            using ZipFile zipFile = ZipFile.Read(path);
 
             Byte[] iconBuffer = Utils.ExtractFromZip(zipFile, "icon.png");
             Byte[] confBuffer = Utils.ExtractFromZip(zipFile, "config.toml");
 
-            var mod = new ScrapMod()
+            ScrapMod mod = new ScrapMod()
             {
                 ModPath = path,
                 Icon = Utils.LoadImage(iconBuffer)
             };
 
-            LoadConfig(ref mod, confBuffer);
+            LoadConfig(mod, confBuffer);
 
             return mod;
         }
 
 
 
-        private static void LoadConfig(ref ScrapMod mod, Byte[] buffer)
+        private static void LoadConfig(ScrapMod mod, Byte[] buffer)
         {
-            using var sourceStream = new MemoryStream(buffer);
-            using var reader = new StreamReader(sourceStream);
+            using MemoryStream sourceStream = new MemoryStream(buffer);
+            using StreamReader reader = new StreamReader(sourceStream);
 
             TomlTable config = TOML.Parse(reader);
 

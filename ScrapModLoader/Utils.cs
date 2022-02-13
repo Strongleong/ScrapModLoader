@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Windows.Media.Imaging;
 using System.IO;
+using System.Windows.Media.Imaging;
 
 using Ionic.Zip;
 
@@ -35,8 +35,8 @@ internal static class Utils
         if (entry == null)
             throw new FileFormatException($"No '{entry_path}' in {zip.Name} found");
 
-        var buffer = new Byte[entry.UncompressedSize];
-        using (var zipStream = new MemoryStream(buffer))
+        Byte[] buffer = new Byte[entry.UncompressedSize];
+        using (MemoryStream zipStream = new MemoryStream(buffer))
             entry.Extract(zipStream);
 
         return buffer;
@@ -44,9 +44,9 @@ internal static class Utils
 
     public static BitmapImage LoadImage(Byte[] buffer)
     {
-        using var sourceStream = new MemoryStream(buffer);
+        using MemoryStream sourceStream = new MemoryStream(buffer);
 
-        var image = new BitmapImage();
+        BitmapImage? image = new BitmapImage();
 
         image.BeginInit();
         image.CacheOption = BitmapCacheOption.OnLoad;
