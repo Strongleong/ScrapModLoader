@@ -12,27 +12,28 @@ namespace ScrapModLoader
     /// </summary>
     public partial class SettingsWindow : Window
     {
-        public List<String> ModsPathes { get; set; }
-        public String ScraplandPath { get; set; }
-        public String ScraplandRemasteredPath { get; set; }
+        
         public Boolean Save { get; set; }
+        private ModsLauncher ModsLauncherInstance { get; set; }
 
-        public SettingsWindow()
+        public SettingsWindow(ModsLauncher modsLauncher)
         {
             InitializeComponent();
 
             Save = false;
+            ModsLauncherInstance = modsLauncher;
 
-            ModsPathes = Utils.StringCollectionToList(Settings.Default.ModsPathes);
-            ScraplandPath = Settings.Default.ScraplandPath;
-            ScraplandRemasteredPath = Settings.Default.ScraplandRemasteredPath;
+            ModsPathesList.ItemsSource = ModsLauncherInstance.ModsPathes;
+            ScraplandPathTextBox.Text = ModsLauncherInstance.ScraplandPath;
+            ScraplandRemasteredPathTextBox.Text = ModsLauncherInstance.ScraplandRemasteredPath;
 
-            ModsPathesList.ItemsSource = ModsPathes;
-            ScraplandPathTextBox.Text = ScraplandPath;
-            ScraplandRemasteredPathTextBox.Text = ScraplandRemasteredPath;
+            Boolean enable = ModsLauncherInstance.ScraplandPath != String.Empty;
+            ButtonShowScrap.IsEnabled = enable;
+            ButtonClearScrap.IsEnabled = enable;
 
-            ButtonShowScrap.IsEnabled = ScraplandPath != String.Empty;
-            ButtonShowScrapRemaster.IsEnabled = ScraplandRemasteredPath != String.Empty;
+            enable = ModsLauncherInstance.ScraplandRemasteredPath != String.Empty;
+            ButtonShowScrapRemaster.IsEnabled = enable;
+            ButtonClearScrapRemaster.IsEnabled = enable;
         }
 
         // -------------------------------------------
@@ -44,13 +45,13 @@ namespace ScrapModLoader
         {
             String folder = Utils.GetFolderDialog();
             if (folder != String.Empty)
-                ModsPathes.Add(folder);
+                ModsLauncherInstance.ModsPathes.Add(folder);
 
             ModsPathesList.Items.Refresh();
         }
         private void ButtonRemove_Click(Object sender, RoutedEventArgs e)
         {
-            ModsPathes.Remove((String)ModsPathesList.SelectedValue);
+            ModsLauncherInstance.ModsPathes.Remove((String)ModsPathesList.SelectedValue);
             ModsPathesList.Items.Refresh();
 
             ButtonRemove.IsEnabled = false;
@@ -64,21 +65,21 @@ namespace ScrapModLoader
             if (index == 0)
                 return;
 
-            String? temp = ModsPathes[index - 1];
-            ModsPathes[index - 1] = ModsPathes[index];
-            ModsPathes[index] = temp;
+            String? temp = ModsLauncherInstance.ModsPathes[index - 1];
+            ModsLauncherInstance.ModsPathes[index - 1] = ModsLauncherInstance.ModsPathes[index];
+            ModsLauncherInstance.ModsPathes[index] = temp;
 
             ModsPathesList.Items.Refresh();
         }
         private void ButtonDown_Click(Object sender, RoutedEventArgs e)
         {
             Int32 index = ModsPathesList.SelectedIndex;
-            if (index == ModsPathes.Count - 1)
+            if (index == ModsLauncherInstance.ModsPathes.Count - 1)
                 return;
 
-            String? temp = ModsPathes[index + 1];
-            ModsPathes[index + 1] = ModsPathes[index];
-            ModsPathes[index] = temp;
+            String? temp = ModsLauncherInstance.ModsPathes[index + 1];
+            ModsLauncherInstance.ModsPathes[index + 1] = ModsLauncherInstance.ModsPathes[index];
+            ModsLauncherInstance.ModsPathes[index] = temp;
 
             ModsPathesList.Items.Refresh();
         }
@@ -108,49 +109,75 @@ namespace ScrapModLoader
 
         private void ButtonBrowseScrap_Click(Object sender, RoutedEventArgs e)
         {
-            String scraplandPath = Utils.GetFolderDialog();
-            if (scraplandPath != String.Empty)
+            String ScraplandPath = Utils.GetFolderDialog();
+            if (ScraplandPath != String.Empty)
             {
-                ScraplandPathTextBox.Text = scraplandPath;
-                ScraplandPath = scraplandPath;
+                ScraplandPathTextBox.Text = ScraplandPath + "\\";
+                ModsLauncherInstance.ScraplandPath = ScraplandPath + "\\";
                 ButtonShowScrap.IsEnabled = true;
             }
         }
         private void ButtonBrowseScrapRemaster_Click(Object sender, RoutedEventArgs e)
         {
-            String scraplandRemasteredPath = Utils.GetFolderDialog();
-            if (scraplandRemasteredPath != String.Empty)
+            String ScraplandRemasteredPath = Utils.GetFolderDialog();
+            if (ScraplandRemasteredPath != String.Empty)
             {
-                ScraplandRemasteredPathTextBox.Text = scraplandRemasteredPath;
-                ScraplandRemasteredPath = scraplandRemasteredPath;
+                ScraplandRemasteredPathTextBox.Text = ScraplandRemasteredPath + "\\";
+                ModsLauncherInstance.ScraplandRemasteredPath = ScraplandRemasteredPath + "\\";
                 ButtonShowScrapRemaster.IsEnabled = true;
             }
         }
         private void ButtonClearScrap_Click(Object sender, RoutedEventArgs e)
         {
             ScraplandPathTextBox.Text = String.Empty;
+            ButtonClearScrap.IsEnabled = false;
             ButtonShowScrap.IsEnabled = false;
-            ScraplandPath = String.Empty;
+            ModsLauncherInstance.ScraplandPath = String.Empty;
         }
         private void ButtonClearScrapRemaster_Click(Object sender, RoutedEventArgs e)
         {
             ScraplandRemasteredPathTextBox.Text = String.Empty;
             ButtonClearScrapRemaster.IsEnabled = false;
-            ScraplandRemasteredPath = String.Empty;
+            ButtonShowScrapRemaster.IsEnabled = false;
+            ModsLauncherInstance.ScraplandRemasteredPath = String.Empty;
         }
         private void ButtonShowScrap_Click(Object sender, RoutedEventArgs e)
         {
-            String? path = Path.GetDirectoryName(ScraplandPath);
+            String? path = Path.GetDirectoryName(ModsLauncherInstance.ScraplandPath);
             if (path == null)
                 throw new DirectoryNotFoundException("Cannot find direcotry for Scrapland");
             Process.Start("explorer.exe", path);
         }
         private void ButtonShowScrapRemaster_Click(Object sender, RoutedEventArgs e)
         {
-            String? path = Path.GetDirectoryName(ScraplandRemasteredPath);
+            String? path = Path.GetDirectoryName(ModsLauncherInstance.ScraplandRemasteredPath);
             if (path == null)
                 throw new DirectoryNotFoundException("Cannot find direcotry for Scrapland");
             Process.Start("explorer.exe", path);
+        }
+        private void ButtonAutoFind_Click(Object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Boolean isFoundScrapland = ModsLauncherInstance.SearchForScrapland();
+                if (!isFoundScrapland)
+                    MessageBox.Show("Error: unable to find Scrapland instalation. Please, specify yours game installation folder in settings.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+            ScraplandPathTextBox.Text = ModsLauncherInstance.ScraplandPath;
+            ScraplandRemasteredPathTextBox.Text = ModsLauncherInstance.ScraplandRemasteredPath;
+
+            Boolean enable = ModsLauncherInstance.ScraplandPath != String.Empty;
+            ButtonShowScrap.IsEnabled = enable;
+            ButtonClearScrap.IsEnabled = enable;
+
+            enable = ModsLauncherInstance.ScraplandRemasteredPath != String.Empty;
+            ButtonShowScrapRemaster.IsEnabled = enable;
+            ButtonClearScrapRemaster.IsEnabled = enable;
         }
 
         // -------------------------------------------
@@ -161,10 +188,11 @@ namespace ScrapModLoader
         private void ButtonSave_Click(Object sender, RoutedEventArgs e)
         {
             Settings.Default.ModsPathes.Clear();
-            Settings.Default.ModsPathes.AddRange(ModsPathes.ToArray());
-            Settings.Default.ScraplandPath = ScraplandPath;
-            Settings.Default.ScraplandRemasteredPath = ScraplandRemasteredPath;
+            Settings.Default.ModsPathes.AddRange(ModsLauncherInstance.ModsPathes.ToArray());
+            Settings.Default.ScraplandPath = ModsLauncherInstance.ScraplandPath;
+            Settings.Default.ScraplandRemasteredPath = ModsLauncherInstance.ScraplandRemasteredPath;
             Settings.Default.Save();
+
             Save = true;
             Close();
         }
