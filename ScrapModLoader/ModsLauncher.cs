@@ -32,7 +32,7 @@ namespace ScrapModLoader
                 {
                     String[] files = Directory.GetFiles(folder, "*.sm", SearchOption.AllDirectories);
                     foreach (String file in files)
-                        Mods.Add(new ScrapMod(file));
+                        Mods.Add(ScrapMod.LoadFromFile(file));
                 }
             }
         }
@@ -96,9 +96,9 @@ namespace ScrapModLoader
                 if (mod.Checked)
                     if (!mod.IsEnabled(gamePath))
                         mod.Enable(gamePath, SelectedGameVersion);
-                else
-                    if (mod.IsEnabled(gamePath))
-                        mod.Disable(gamePath);
+                    else
+                        if (mod.IsEnabled(gamePath))
+                            mod.Disable(gamePath);
             }
         }
     }

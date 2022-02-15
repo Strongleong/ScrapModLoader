@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Media.Imaging;
-using System.Xml;
 
 using Ionic.Zip;
 
@@ -12,41 +11,33 @@ namespace ScrapModLoader
 {
     public class ScrapMod
     {
-        public String Name { get; private set; }
-        public String Description { get; private set; }
-        public String ModPath { get; private set; }
-        public BitmapImage Icon { get; private set; }
-        public Boolean Checked { get; set; }
-        public String Category { get; private set; }
-        public String Version { get; private set; }
-        public String RequiredLauncher { get; private set; }
-        public List<String> SupportedGameVersions { get; private set; }
-        public String SupportedGameVersionsDisplay { 
-            get
-            {
-                String result = String.Empty;
-                foreach (String version in SupportedGameVersions)
-                    result += version + ", ";
-                return result.TrimEnd(',', ' ');
-            } 
-        }
-        public List<String> Authors { get; private set; }
-        public Dictionary<String, List<String>> Credits { get; private set; }
+        public String Name { get; private set; } = String.Empty;
 
-        public ScrapMod(String path)
+        public String Description { get; private set; } = String.Empty;
+
+        public String ModPath { get; private set; } = String.Empty;
+
+        public BitmapImage Icon { get; private set; } = new BitmapImage();
+
+        public Boolean Checked { get; set; } = false;
+
+        public String Category { get; private set; } = String.Empty;
+
+        public String Version { get; private set; } = String.Empty;
+
+        public String RequiredLauncher { get; private set; } = String.Empty;
+
+        public List<String> SupportedGameVersions { get; private set; } = new List<String>();
+
+        public String SupportedGameVersionsDisplay => String.Join(", ", SupportedGameVersions);
+
+        public List<String> Authors { get; private set; } = new List<String>();
+
+        public Dictionary<String, List<String>> Credits { get; private set; } = new Dictionary<String, List<String>>();
+
+        private ScrapMod()
         {
-            ModPath = path;
-            Name = String.Empty;
-            Description = String.Empty;
-            Icon = new BitmapImage();
-            Checked = false;
-            Category = String.Empty;
-            Version = String.Empty;
-            RequiredLauncher = String.Empty;
-            SupportedGameVersions = new List<String>();
-            Authors = new List<String>();
-            Credits = new Dictionary<String, List<String>>();
-            LoadFromFile(path);
+
         }
 
 
@@ -108,71 +99,55 @@ namespace ScrapModLoader
             }
         }
 
-        private void LoadFromFile(String path)
+        public static ScrapMod LoadFromFile(String path)
         {
-            using (ZipFile zipFile = ZipFile.Read(path))
+            using ZipFile zipFile = ZipFile.Read(path);
+
+            Byte[] iconBuffer = Utils.ExtractFromZip(zipFile, "icon.png");
+            Byte[] confBuffer = Utils.ExtractFromZip(zipFile, "config.toml");
+
+            ScrapMod mod = new ScrapMod()
             {
-                Byte[] iconBuffer = ExtractFromZip(zipFile, "icon.png");
-                Byte[] confBuffer = ExtractFromZip(zipFile, "config.toml");
-                LoadIcon(iconBuffer);
-                LoadConfig(confBuffer);
-            }
+                ModPath = path,
+                Icon = Utils.LoadImage(iconBuffer)
+            };
+
+            LoadConfig(mod, confBuffer);
+
+            return mod;
         }
 
-        private Byte[] ExtractFromZip(ZipFile zip, String entry_path)
+
+
+        private static void LoadConfig(ScrapMod mod, Byte[] buffer)
         {
-            ZipEntry? entry = zip[entry_path];
-            if (entry == null)
-                throw new FileFormatException($"No '{entry_path}' in {Name} found");
+            using MemoryStream sourceStream = new MemoryStream(buffer);
+            using StreamReader reader = new StreamReader(sourceStream);
 
-            Byte[] buffer = new Byte[entry.UncompressedSize];
-            using (MemoryStream zipStream = new MemoryStream(buffer))
-                entry.Extract(zipStream);
+            TomlTable config = TOML.Parse(reader);
 
-            return buffer;
-        }
+            CheckConfig(config);
 
-        private void LoadIcon(Byte[] buffer)
-        {
-            using (MemoryStream sourceStream = new MemoryStream(buffer))
+            mod.Name = config["title"];
+            mod.Description = config["description"];
+            mod.Category = config["category"];
+            mod.Version = config["version"];
+            mod.RequiredLauncher = config["requiredLauncher"];
+
+            foreach (TomlNode version in config["supportedGameVersions"])
+                mod.SupportedGameVersions.Add(version);
+
+            foreach (TomlNode author in config["authors"])
+                mod.Authors.Add(author["name"]);
+
+            foreach (TomlNode credit in config["credits"])
             {
-                Icon.BeginInit();
-                Icon.CacheOption = BitmapCacheOption.OnLoad;
-                Icon.StreamSource = sourceStream;
-                Icon.EndInit();
-            }
-        }
+                List<String> entries = new List<String>();
 
-        private void LoadConfig(Byte[] buffer)
-        {
-            using (MemoryStream sourceStream = new MemoryStream(buffer))
-            using (StreamReader reader = new StreamReader(sourceStream))
-            {
-                TomlTable config = TOML.Parse(reader);
+                foreach (TomlNode entry in credit["credits"])
+                    entries.Add(entry["name"]);
 
-                CheckConfig(config);
-
-                Name = config["title"];
-                Description = config["description"];
-                Category = config["category"];
-                Version = config["version"];
-                RequiredLauncher = config["requiredLauncher"];
-
-                foreach (TomlNode version in config["supportedGameVersions"])
-                    SupportedGameVersions.Add(version);
-
-                foreach (TomlNode author in config["authors"])
-                    Authors.Add(author["name"]);
-
-                foreach (TomlNode credit in config["credits"])
-                {
-                    List<String> entries = new List<String>();
-
-                    foreach (TomlNode entry in credit["credits"])
-                        entries.Add(entry["name"]);
-
-                    Credits.Add(credit["group"], entries);
-                }
+                mod.Credits.Add(credit["group"], entries);
             }
         }
 
