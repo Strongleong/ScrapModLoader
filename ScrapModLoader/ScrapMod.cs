@@ -40,65 +40,6 @@ namespace ScrapModLoader
 
         }
 
-
-        public Boolean IsLoaded(String gamePath) => Directory.Exists(gamePath + @"Mods\" + Name);
-
-        public Boolean IsEnabled(String gamePath)
-        {
-            if (IsLoaded(gamePath))
-            {
-                foreach (String file in Directory.EnumerateFiles(gamePath + @"Mods\" + Name))
-                {
-                    if (Path.GetExtension(file) == ".disabled")
-                        return false;
-                }
-
-                return true;
-            }
-            return false;
-        }
-
-        public void Enable(String gamePath, String gameVersion)
-        {
-            if (!IsLoaded(gamePath))
-                LoadModToGame(gamePath, gameVersion);
-
-            if (IsEnabled(gamePath))
-                return;
-
-            foreach (String file in Directory.EnumerateFiles(gamePath + @"Mods\" + Name))
-                if (Path.GetExtension(file) == ".disabled")
-                    File.Move(file, Path.ChangeExtension(file, null));
-        }
-
-        public void Disable(String gamePath)
-        {
-            if (!IsEnabled(gamePath))
-                return;
-
-            foreach (String file in Directory.EnumerateFiles(gamePath + @"Mods\" + Name))
-                if (Path.GetExtension(file) == ".packed")
-                    File.Move(file, file + ".disabled");
-        }
-
-        private void LoadModToGame(String gamePath, String gameVersion)
-        {
-            gamePath += @"Mods\" + Name;
-            Directory.CreateDirectory(gamePath);
-
-            using (ZipFile zipFile = ZipFile.Read(ModPath))
-            {
-                foreach (ZipEntry zipEntry in zipFile)
-                {
-                    if (!Path.GetFullPath(zipEntry.FileName).Contains(gameVersion))
-                        continue;
-
-                    if (Path.GetExtension(zipEntry.FileName) == ".packed")
-                        zipEntry.Extract(gamePath);
-                }
-            }
-        }
-
         public static ScrapMod LoadFromFile(String path)
         {
             using ZipFile zipFile = ZipFile.Read(path);
@@ -116,8 +57,6 @@ namespace ScrapModLoader
 
             return mod;
         }
-
-
 
         private static void LoadConfig(ScrapMod mod, Byte[] buffer)
         {
