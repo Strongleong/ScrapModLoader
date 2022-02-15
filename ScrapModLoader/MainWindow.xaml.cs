@@ -37,11 +37,18 @@ namespace ScrapModLoader
             // TODO: Refactor it to separate window with pretty loading animation
             if (modsLauncher.ScraplandPath == String.Empty && modsLauncher.ScraplandRemasteredPath == String.Empty)
             {
-                Boolean isFoundScrapland = modsLauncher.SearchForScrapland();
-                if (!isFoundScrapland)
+                try
                 {
-                    ButtonRunScrapland.IsEnabled = false;
-                    MessageBox.Show("Error: unable to find Scrapland instalation. Please, specify yours game installation folder in settings.");
+                    Boolean isFoundScrapland = modsLauncher.SearchForScrapland();
+                    if (!isFoundScrapland)
+                    {
+                        ButtonRunScrapland.IsEnabled = false;
+                        MessageBox.Show("Error: unable to find Scrapland instalation. Please, specify yours game installation folder in settings.");
+                    }
+                }
+                catch (KeyNotFoundException ex)
+                {
+                    MessageBox.Show(ex.Message);
                 }
             }
 
@@ -148,11 +155,16 @@ namespace ScrapModLoader
 
         private void ButtonSettings_Click(Object sender, RoutedEventArgs e)
         {
-            SettingsWindow settingsWindow = new SettingsWindow();
+            SettingsWindow settingsWindow = new SettingsWindow(modsLauncher);
+
             settingsWindow.ShowDialog();
             if (settingsWindow.Save)
                 modsLauncher.ScanMods();
+
             ModsList.Items.Refresh();
+            ((ComboBoxItem)ScraplandVersion.Items[0]).IsEnabled = modsLauncher.ScraplandPath != String.Empty;
+            ((ComboBoxItem)ScraplandVersion.Items[1]).IsEnabled = modsLauncher.ScraplandRemasteredPath != String.Empty;
+            ScraplandVersion.SelectedIndex = modsLauncher.ScraplandRemasteredPath != String.Empty ? 1 : 0;
         }
 
         private void ButtonRunScrapland_Click(Object sender, RoutedEventArgs e)
