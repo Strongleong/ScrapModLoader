@@ -28,8 +28,7 @@ namespace ScrapModLoader
         {
             if (Settings.Default.ModsPathes.Count == 0)
             {
-                String path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
-                    + Path.DirectorySeparatorChar + "Scrapland mods";
+                String path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Scrapland mods");
                 Settings.Default.ModsPathes.Add(path);
                 Directory.CreateDirectory(path);
             }
@@ -43,7 +42,8 @@ namespace ScrapModLoader
                     if (!isFoundScrapland)
                     {
                         ButtonRunScrapland.IsEnabled = false;
-                        MessageBox.Show("Error: unable to find Scrapland instalation. Please, specify yours game installation folder in settings.");
+                        MessageBox.Show("Unable to find Scrapland instalation. Please, specify yours game installation folder in settings.",
+                            "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
                 catch (KeyNotFoundException ex)
@@ -52,8 +52,8 @@ namespace ScrapModLoader
                 }
             }
 
-            ((ComboBoxItem)ScraplandVersion.Items[0]).IsEnabled = modsLauncher.ScraplandPath != String.Empty;
-            ((ComboBoxItem)ScraplandVersion.Items[1]).IsEnabled = modsLauncher.ScraplandRemasteredPath != String.Empty;
+            OriginalVersionItem.IsEnabled = modsLauncher.ScraplandPath != String.Empty;
+            RemasteredVersionItem.IsEnabled = modsLauncher.ScraplandRemasteredPath != String.Empty;
 
             ScraplandVersion.SelectedIndex = modsLauncher.ScraplandRemasteredPath != String.Empty ? 1 : 0;
 
@@ -62,18 +62,18 @@ namespace ScrapModLoader
 
         private void ModsList_Initialized(Object sender, EventArgs e) => ModsList.ItemsSource = modsLauncher.Mods;
 
-        private void ModsList_MouseDown(Object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void ModsList_MouseDown(Object sender, MouseButtonEventArgs e)
         {
-            if (MainGrid.ColumnDefinitions[2].Width.Value != 0)
+            if (PreviewColumn.Width.Value != 0)
             {
-                gridLength = MainGrid.ColumnDefinitions[2].Width;
-                MainGrid.ColumnDefinitions[2].Width = new GridLength(0, GridUnitType.Star);
+                gridLength = PreviewColumn.Width;
+                PreviewColumn.Width = new GridLength(0, GridUnitType.Star);
             }
         }
 
         private void ListViewItem_PreviewMouseLeftButtonDown(Object sender, MouseButtonEventArgs e)
         {
-            MainGrid.ColumnDefinitions[2].Width = gridLength;
+            PreviewColumn.Width = gridLength;
 
             if (sender is ListViewItem item)
             {
@@ -81,7 +81,7 @@ namespace ScrapModLoader
                 if (selectedModName == null)
                     throw new KeyNotFoundException(nameof(selectedModName));
 
-                ScrapMod ? mod = modsLauncher.Mods.Find(mod => mod.Name == selectedModName);
+                ScrapMod? mod = modsLauncher.Mods.Find(mod => mod.Name == selectedModName);
 
                 if (mod == null)
                     throw new KeyNotFoundException(nameof(mod));
@@ -99,34 +99,35 @@ namespace ScrapModLoader
         private void WriteModInfo(ScrapMod mod)
         {
             ModInfo.Document.Blocks.Clear();
-            Paragraph parahraph = new Paragraph();
+            Paragraph paragraph = new Paragraph();
 
-            parahraph.Inlines.Add(new Bold(new Run("Description:\n")));
-            parahraph.Inlines.Add(new Run(mod.Description));
+            paragraph.Inlines.Add(new Bold(new Run("Description:\n")));
+            paragraph.Inlines.Add(new Run(mod.Description));
 
-            parahraph.Inlines.Add(new Bold(new Run("\n\nAuthors:\n")));
+            paragraph.Inlines.Add(new Bold(new Run("\n\nAuthors:\n")));
             foreach (String autor in mod.Authors)
-                parahraph.Inlines.Add(new Run(autor + "\n"));
+                paragraph.Inlines.Add(new Run(autor + "\n"));
 
-            ModInfo.Document.Blocks.Add(parahraph);
+            ModInfo.Document.Blocks.Add(paragraph);
 
-            ModCreditsTab.Visibility = Visibility.Visible;
             if (mod.Credits.Count == 0)
                 ModCreditsTab.Visibility = Visibility.Hidden;
             else
             {
+                ModCreditsTab.Visibility = Visibility.Visible;
+
                 ModCredits.Document.Blocks.Clear();
-                parahraph = new Paragraph();
+                paragraph = new Paragraph();
 
                 foreach (KeyValuePair<String, List<String>> credit in mod.Credits)
                 {
-                    parahraph.Inlines.Add(new Bold(new Run(credit.Key + "\n")));
+                    paragraph.Inlines.Add(new Bold(new Run(credit.Key + "\n")));
                     foreach (String autor in credit.Value)
-                        parahraph.Inlines.Add(new Run(autor + "\n"));
-                    parahraph.Inlines.Add(new Run("\n"));
+                        paragraph.Inlines.Add(new Run(autor + "\n"));
+                    paragraph.Inlines.Add(new Run("\n"));
                 }
 
-                ModCredits.Document.Blocks.Add(parahraph);
+                ModCredits.Document.Blocks.Add(paragraph);
             }
         }
 
@@ -139,6 +140,8 @@ namespace ScrapModLoader
                 throw new NullReferenceException(nameof(isChecked));
 
             StackPanel parent = (StackPanel)checkbox.Parent;
+            // TODO: replace by find template
+            // https://docs.microsoft.com/ru-ru/dotnet/desktop/wpf/data/how-to-find-datatemplate-generated-elements?view=netframeworkdesktop-4.8
             Label label = (Label)parent.Children[2];
             String? selectedModName = label.Content.ToString();
 
@@ -162,8 +165,8 @@ namespace ScrapModLoader
                 modsLauncher.ScanMods();
 
             ModsList.Items.Refresh();
-            ((ComboBoxItem)ScraplandVersion.Items[0]).IsEnabled = modsLauncher.ScraplandPath != String.Empty;
-            ((ComboBoxItem)ScraplandVersion.Items[1]).IsEnabled = modsLauncher.ScraplandRemasteredPath != String.Empty;
+            OriginalVersionItem.IsEnabled = modsLauncher.ScraplandPath != String.Empty;
+            RemasteredVersionItem.IsEnabled = modsLauncher.ScraplandRemasteredPath != String.Empty;
             ScraplandVersion.SelectedIndex = modsLauncher.ScraplandRemasteredPath != String.Empty ? 1 : 0;
         }
 
@@ -178,7 +181,7 @@ namespace ScrapModLoader
             String gamePath = modsLauncher.SelectedGameVersion == "1.0" ?
                 modsLauncher.ScraplandPath : modsLauncher.ScraplandRemasteredPath;
 
-            Process.Start(gamePath + @"\bin\Scrap.exe", args);
+            Process.Start(Path.Combine(gamePath, @"\bin\Scrap.exe"), args);
 
             if (CloseLauncher.IsChecked ?? false)
                 Close();

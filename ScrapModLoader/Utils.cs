@@ -13,7 +13,7 @@ internal static class Utils
 {
     public static String GetFolderDialog()
     {
-        using System.Windows.Forms.FolderBrowserDialog? dialog = new System.Windows.Forms.FolderBrowserDialog();
+        using System.Windows.Forms.FolderBrowserDialog dialog = new System.Windows.Forms.FolderBrowserDialog();
         System.Windows.Forms.DialogResult result = dialog.ShowDialog();
         return dialog.SelectedPath;
     }

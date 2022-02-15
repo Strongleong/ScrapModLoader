@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 using Ionic.Zip;
 
@@ -11,23 +12,17 @@ namespace ScrapModLoader
 {
     public class ModsLauncher
     {
-        public List<ScrapMod> Mods { get; private set; }
-        public List<String> ModsPathes { get; set; }
-        public String ScraplandPath { get; set; }
-        public String ScraplandRemasteredPath { get; set; }
-        public String SelectedGameVersion { get; set; }
-        public String LauncherVersion { get; set; }
-        public String SelectedGamePath { get; set; }
+        public List<ScrapMod> Mods { get; private set; } = new List<ScrapMod>();
+        public List<String> ModsPathes { get; set; } = Utils.StringCollectionToList(Settings.Default.ModsPathes);
+        public String ScraplandPath { get; set; } = Settings.Default.ScraplandPath;
+        public String ScraplandRemasteredPath { get; set; } = Settings.Default.ScraplandRemasteredPath;
+        public String SelectedGameVersion { get; set; } = "0.0";
+        public String LauncherVersion { get; set; } = "0.3";
+        public String SelectedGamePath { get; set; } = String.Empty;
 
         public ModsLauncher()
         {
-            Mods = new List<ScrapMod>();
-            ModsPathes = Utils.StringCollectionToList(Settings.Default.ModsPathes);
-            ScraplandPath = Settings.Default.ScraplandPath;
-            ScraplandRemasteredPath = Settings.Default.ScraplandRemasteredPath;
-            SelectedGameVersion = "0.0";
-            LauncherVersion = "0.3";
-            SelectedGamePath = String.Empty;
+
         }
 
         public void ScanMods()
@@ -60,20 +55,20 @@ namespace ScrapModLoader
                 if (key == null)
                     continue;
 
-                foreach (String subkey_name in key.GetSubKeyNames())
+                foreach (String subKeyName in key.GetSubKeyNames())
                 {
-                    using RegistryKey? subkey = key.OpenSubKey(subkey_name);
-                    if (subkey == null)
+                    using RegistryKey? subKey = key.OpenSubKey(subKeyName);
+                    if (subKey == null)
                         continue;
 
-                    String? displayName = subkey.GetValue("DisplayName")?.ToString();
+                    String? displayName = subKey.GetValue("DisplayName")?.ToString();
                     if (displayName == null)
                         continue;
 
                     if (displayName == "Scrapland" || displayName == "American McGee presents Scrapland")
                     {
-                        ScraplandPath = subkey.GetValue("InstallLocation")?.ToString() ?? "";
-                        if (ScraplandPath == null || ScraplandPath == String.Empty)
+                        ScraplandPath = subKey.GetValue("InstallLocation")?.ToString() ?? String.Empty;
+                        if (String.IsNullOrEmpty(ScraplandPath))
                             throw new KeyNotFoundException("Installed Scrapland found, but unable to locate the instalation folder");
 
                         Settings.Default.ScraplandPath = ScraplandPath;
@@ -82,8 +77,8 @@ namespace ScrapModLoader
 
                     if (displayName == "Scrapland Remastered")
                     {
-                        ScraplandRemasteredPath = subkey.GetValue("InstallLocation")?.ToString() ?? "";
-                        if (ScraplandRemasteredPath == null || ScraplandRemasteredPath == String.Empty)
+                        ScraplandRemasteredPath = subKey.GetValue("InstallLocation")?.ToString() ?? String.Empty;
+                        if (String.IsNullOrEmpty(ScraplandRemasteredPath))
                             throw new KeyNotFoundException("Installed Scrapland Remastered found, but unable to locate the instalation folder");
 
                         Settings.Default.ScraplandRemasteredPath = ScraplandRemasteredPath;
@@ -119,18 +114,17 @@ namespace ScrapModLoader
             }
         }
 
+        private String ModPath(ScrapMod mod) => Path.Combine(SelectedGamePath, "Mod", mod.Name);
+
         public Boolean IsLoaded(ScrapMod mod) =>
-            Directory.Exists(SelectedGamePath + @"Mods\" + mod.Name);
+            Directory.Exists(ModPath(mod));
 
         public Boolean IsEnabled(ScrapMod mod)
         {
             if (!IsLoaded(mod))
                 return false;
 
-            foreach (String file in Directory.EnumerateFiles(SelectedGamePath + @"Mods\" + mod.Name, "*.disabled", SearchOption.AllDirectories))
-                return false;
-
-            return true;
+            return Directory.EnumerateFiles(ModPath(mod), "*.disabled", SearchOption.AllDirectories).FirstOrDefault() == null;
         }
 
         public void Enable(ScrapMod mod)
@@ -141,7 +135,7 @@ namespace ScrapModLoader
             if (IsEnabled(mod))
                 return;
 
-            foreach (String file in Directory.EnumerateFiles(SelectedGamePath + @"Mods\" + mod.Name, "*.disabled", SearchOption.AllDirectories))
+            foreach (String file in Directory.EnumerateFiles(ModPath(mod), "*.disabled", SearchOption.AllDirectories))
                 File.Move(file, Path.ChangeExtension(file, null));
         }
 
@@ -150,14 +144,13 @@ namespace ScrapModLoader
             if (!IsEnabled(mod))
                 return;
 
-            foreach (String file in Directory.EnumerateFiles(SelectedGamePath + @"Mods\" + mod.Name, "*.packed", SearchOption.AllDirectories))
+            foreach (String file in Directory.EnumerateFiles(ModPath(mod), "*.packed", SearchOption.AllDirectories))
                 File.Move(file, file + ".disabled");
         }
 
         private void LoadModToGame(ScrapMod mod)
         {
-            String modPath = SelectedGamePath + @"Mods\" + mod.Name;
-            Directory.CreateDirectory(modPath);
+            Directory.CreateDirectory(ModPath(mod));
 
             using (ZipFile zipFile = ZipFile.Read(mod.ModPath))
             {
@@ -167,7 +160,7 @@ namespace ScrapModLoader
                         continue;
 
                     if (Path.GetExtension(zipEntry.FileName) == ".packed")
-                        zipEntry.Extract(modPath);
+                        zipEntry.Extract(ModPath(mod));
                 }
             }
         }
