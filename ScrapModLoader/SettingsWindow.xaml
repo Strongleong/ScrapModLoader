@@ -63,7 +63,7 @@
                             <TextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" x:Name="ScraplandPathTextBox" IsEnabled="False" />
                             <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal">
                                 <Button Content=" Browse... " HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0,5,0" Name="ButtonBrowseScrap" Click="ButtonBrowseScrap_Click"/>
-                                <Button Content=" Clear " HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0,5,0" Name="ButtonClearScrap" Click="ButtonClearScrap_Click"/>
+                                <Button Content=" Clear " HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0,5,0" Name="ButtonClearScrap" Click="ButtonClearScrap_Click" IsEnabled="False"/>
                                 <Button Content=" Show In Explorer " HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0,5,0" Name="ButtonShowScrap" IsEnabled="False" Click="ButtonShowScrap_Click" />
                             </StackPanel>
                     
@@ -71,9 +71,10 @@
                             <TextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" x:Name="ScraplandRemasteredPathTextBox" IsEnabled="False" />
                             <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal">
                                 <Button Content=" Browse... " HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0,5,0" Name="ButtonBrowseScrapRemaster" Click="ButtonBrowseScrapRemaster_Click"/>
-                                <Button Content=" Clear " HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0,5,0" Name="ButtonClearScrapRemaster" Click="ButtonClearScrapRemaster_Click"/>
+                                <Button Content=" Clear " HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0,5,0" Name="ButtonClearScrapRemaster" Click="ButtonClearScrapRemaster_Click" IsEnabled="False"/>
                                 <Button Content=" Show In Explorer " HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0,5,0" Name="ButtonShowScrapRemaster" IsEnabled="False" Click="ButtonShowScrapRemaster_Click" />
                             </StackPanel>
+                            <Button Grid.Column="2" Content=" Auto find " HorizontalAlignment="Right" Grid.Row="2" VerticalAlignment="Center" Margin="5,0,5,0" Name="ButtonAutoFind" Click="ButtonAutoFind_Click" />
                         </Grid>
                     </GroupBox>
                 </Grid>
