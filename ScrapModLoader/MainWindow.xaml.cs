@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Text;
 
 namespace ScrapModLoader
 {
@@ -21,6 +22,7 @@ namespace ScrapModLoader
         public MainWindow()
         {
             modsLauncher = new ModsLauncher();
+            modsLauncher.ModsLoaded += ModsLauncher_ModsLoaded;
             InitializeComponent();
         }
 
@@ -185,6 +187,22 @@ namespace ScrapModLoader
 
             if (CloseLauncher.IsChecked ?? false)
                 Close();
+        }
+
+        private void ModsLauncher_ModsLoaded(ModLoadedEventArgs eventArgs)
+        {
+            if (eventArgs.UnsupportedMods.Count != 0)
+            {
+                StringBuilder unsupportedModsBuilder = new StringBuilder();
+                unsupportedModsBuilder.AppendLine("Next mod is unsupported and don't be loaded:");
+                unsupportedModsBuilder.AppendLine();
+                foreach (ScrapMod mod in eventArgs.UnsupportedMods)
+                {
+                    unsupportedModsBuilder.AppendLine(mod.Name);
+                }
+
+                MessageBox.Show(unsupportedModsBuilder.ToString(), "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         private void ScraplandVersion_SelectionChanged(Object sender, SelectionChangedEventArgs e) =>

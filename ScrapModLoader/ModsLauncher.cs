@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 
@@ -19,6 +20,10 @@ namespace ScrapModLoader
         public String SelectedGameVersion { get; set; } = "0.0";
         public String LauncherVersion { get; set; } = "0.3";
         public String SelectedGamePath { get; set; } = String.Empty;
+
+        public delegate void ModsLoadedHandler(ModLoadedEventArgs eventArgs);
+
+        public event ModsLoadedHandler? ModsLoaded;
 
         public ModsLauncher()
         {
@@ -93,25 +98,38 @@ namespace ScrapModLoader
         public void LoadMods()
         {
             SelectedGamePath = SelectedGameVersion == "1.0" ? ScraplandPath : ScraplandRemasteredPath;
+            List<ScrapMod> loadedMods = new List<ScrapMod>();
+            List<ScrapMod> unsupportedMods = new List<ScrapMod>();
 
             foreach (ScrapMod mod in Mods)
             {
-                // TODO: Warning about not loading mods that not supports selected version
-                if (!mod.SupportedGameVersions.Contains(SelectedGameVersion) ||
-                    Single.Parse(mod.RequiredLauncher, CultureInfo.InvariantCulture) < Single.Parse(LauncherVersion, CultureInfo.InvariantCulture))
-                    continue;
-
-                if (mod.Checked)
+                if (IsSupported(mod))
                 {
-                    if (!IsEnabled(mod))
-                        Enable(mod);
+                    if (mod.Checked)
+                    {
+                        if (!IsEnabled(mod))
+                            Enable(mod);
+
+                        loadedMods.Add(mod);
+                    }
+                    else
+                    {
+                        if (IsEnabled(mod))
+                            Disable(mod);
+                    }
                 }
                 else
                 {
-                    if (IsEnabled(mod))
-                        Disable(mod);
+                    unsupportedMods.Add(mod);
                 }
             }
+            ModsLoaded?.Invoke(new ModLoadedEventArgs(loadedMods, unsupportedMods));
+        }
+
+        public Boolean IsSupported(ScrapMod mod)
+        {
+            return mod.SupportedGameVersions.Contains(SelectedGameVersion) ||
+                    Single.Parse(mod.RequiredLauncher, CultureInfo.InvariantCulture) < Single.Parse(LauncherVersion, CultureInfo.InvariantCulture);
         }
 
         private String ModPath(ScrapMod mod) => 
