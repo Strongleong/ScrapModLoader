@@ -114,7 +114,8 @@ namespace ScrapModLoader
             }
         }
 
-        private String ModPath(ScrapMod mod) => Path.Combine(SelectedGamePath, "Mod", mod.Name);
+        private String ModPath(ScrapMod mod) => 
+            Path.Combine(SelectedGamePath, "Mods", mod.Name);
 
         public Boolean IsLoaded(ScrapMod mod) =>
             Directory.Exists(ModPath(mod));

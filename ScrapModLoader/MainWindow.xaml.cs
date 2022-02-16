@@ -181,7 +181,7 @@ namespace ScrapModLoader
             String gamePath = modsLauncher.SelectedGameVersion == "1.0" ?
                 modsLauncher.ScraplandPath : modsLauncher.ScraplandRemasteredPath;
 
-            Process.Start(Path.Combine(gamePath, @"\bin\Scrap.exe"), args);
+            Process.Start(Path.Combine(gamePath, @"bin\Scrap.exe"), args);
 
             if (CloseLauncher.IsChecked ?? false)
                 Close();
